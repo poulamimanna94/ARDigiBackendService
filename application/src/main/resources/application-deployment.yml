@@ -1,0 +1,142 @@
+logging:
+  level:
+    ROOT: ${ROOT_LOG_LEVEL:info}
+    com.siemens: ${COM_SIEMENS_LOG_LEVEL:info}
+ 
+server:
+  port: ${TOMCAT_SERVER_PORT:8007}
+  
+spring:
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: deferred
+  datasource:
+    initialization-mode: ${SPRING_DATASOURCE_INIT_MODE:always}
+    separator: ${SPRING_DATASOURCE_SEPARATOR:^^}
+    type: com.zaxxer.hikari.HikariDataSource
+    url: ${POSTGRES_DATABASE_SOURCE:jdbc:postgresql://localhost:5432/dvpi_server}
+    username: ${POSTGRES_DATABASE_USERNAME:postgres}
+    password: ${POSTGRES_DATABASE_PASSWORD:Siemens@123}
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    open-in-view: false
+    defer-datasource-initialization: true
+    properties:
+      hibernate.enable_lazy_load_no_trans: true
+      hibernate.jdbc.time_zone: UTC
+      hibernate.id.new_generator_mappings: true
+      hibernate.connection.provider_disables_autocommit: true
+      hibernate.cache.use_second_level_cache: true
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: false
+      # modify batch size as necessary
+      hibernate.jdbc.batch_size: 25
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
+      hibernate.query.fail_on_pagination_over_collection_fetch: true
+      hibernate.query.in_clause_parameter_padding: true
+      hibernate.hbm2ddl.import_files: data.sql
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+  security:
+    oauth2:
+      client:
+        provider:
+          oidc:
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://132.186.106.56:8080/auth/realms/dvpi}
+        registration:
+          oidc:
+            client-id: ${KEYCLOAK_CLIENT_NAME:dvpi_api}
+            client-secret: ${KEYCLOAK_CLIENT_SECRET_ID:a1f9e9d9-4bf9-4dbb-9623-3f11132c9b9e}
+
+application:
+  audience:
+    - account
+    - ${KEYCLOAK_CLIENT_NAME:dvpi_api}
+    - api://default
+  cors:
+    allowed-origins: 'http://localhost:4200,http://132.186.106.56:9898,http://132.186.106.56:9797'
+    allowed-methods: '*'
+    allowed-headers: '*'
+    exposed-headers: 'Authorization,Link,X-Total-Count'
+    allow-credentials: true
+    max-age: 1800
+  clientApp:
+    name: DVPI
+  user-limit: ${APPLICATION_LIMIT_USERS:30}
+#  air-byte-url: ${APP_BACKEND_AIRBYTE_URL:http://localhost:8000/api/v1}
+
+api:
+  opc:
+    baseUrl: http://132.186.106.56:8889
+
+keycloak:
+  realm: ${KEYCLOAK_REALM_NAME:dvpi}
+  cors: true
+  auth-server-url: ${KEYCLOAK_AUTH_URL:http://132.186.106.56:8080/auth}
+  ssl-required: ${KEYCLOAK_SSL_REQUIRED:none}
+  resource: ${KEYCLOAK_CLIENT_NAME:dvpi_api}
+  principal-attribute: ${KEYCLOAK_PRIMARY_ROLE:dvpi_admin}
+  credentials:
+    secret: ${KEYCLOAK_CLIENT_SECRET_ID:a1f9e9d9-4bf9-4dbb-9623-3f11132c9b9e}
+# 132.186.106.12 deployed server keycloak cred: c191c693-d249-4c34-89f9-d213af9cd0d2
+# local dbcca76c-b9e3-4659-b696-ba8278fcf52e
+  use-resource-role-mappings: true
+  enabled: true
+#  policy-enforcer-config:
+#    enforcement-mode: ENFORCING
+#    paths:
+#    - path: /swagger-ui.html/*
+#      enforcement-mode: DISABLED
+#    - path: /swagger-ui/index.html
+#      enforcement-mode: DISABLED
+#    - path: /swagger-ui/*
+#      enforcement-mode: DISABLED
+#    - path: /webjars/*
+#      enforcement-mode: DISABLED
+#    - path: /api/v2/*
+#      enforcement-mode: DISABLED
+#    - path: /v2/*
+#      enforcement-mode: DISABLED
+#    - path: /swagger-resources/*
+#      enforcement-mode: DISABLED
+#    - path: /api/authenticate
+#      enforcement-mode: DISABLED
+#    - path: /api/logo/*
+#      enforcement-mode: DISABLED
+#    - path: /error/*
+#      enforcement-mode: DISABLED
+#  security-constraints:
+#  - auth-roles: admin
+#    security-collections:
+#    - patterns:
+#      - /api/*
+#  security-constraints:
+#  - auth-roles: admin
+#    security-collections:
+#    - patterns:
+#      - /api/i/*
+#  - auth-roles: sie_admin
+#    security-collections:
+#    - patterns:
+#      - /api/i/*
+#  - auth-roles: Level 1
+#    security-collections:
+#    - patterns:
+#      - /api/i/*
+#  - auth-roles: Level 2
+#    security-collections:
+#    - patterns:
+#      - /api/i/*
+##  security-constraints[0]:
+##    authRoles[0]: admin
+##    securityCollections[0]:
+##      patterns[0]: /api/i/*

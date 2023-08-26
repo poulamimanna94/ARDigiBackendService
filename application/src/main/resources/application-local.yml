@@ -1,0 +1,90 @@
+logging:
+  level:
+    ROOT: ${ROOT_LOG_LEVEL:info}
+    com.siemens: ${COM_SIEMENS_LOG_LEVEL:info}
+ 
+server:
+  port: ${TOMCAT_SERVER_PORT:8888}
+  
+spring:
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: deferred
+  datasource:
+    initialization-mode: ${SPRING_DATASOURCE_INIT_MODE:always}
+    separator: ${SPRING_DATASOURCE_SEPARATOR:^^}
+    type: com.zaxxer.hikari.HikariDataSource
+    url: ${POSTGRES_DATABASE_SOURCE:jdbc:postgresql://localhost:5432/ar_digi_companion_dev}
+    username: ${POSTGRES_DATABASE_USERNAME:postgres}
+    password: ${POSTGRES_DATABASE_PASSWORD:LNecOEKfVXeFlCuw4xfd}
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    open-in-view: false
+    defer-datasource-initialization: true
+    properties:
+      hibernate.enable_lazy_load_no_trans: true
+      hibernate.jdbc.time_zone: UTC
+      hibernate.id.new_generator_mappings: true
+      hibernate.connection.provider_disables_autocommit: true
+      hibernate.cache.use_second_level_cache: true
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: false
+      # modify batch size as necessary
+      hibernate.jdbc.batch_size: 25
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
+      hibernate.query.fail_on_pagination_over_collection_fetch: true
+      hibernate.query.in_clause_parameter_padding: true
+      hibernate.hbm2ddl.import_files: data.sql
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+  security:
+    oauth2:
+      client:
+        provider:
+          oidc:
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/auth/realms/dvpi}
+        registration:
+          oidc:
+            client-id: ${KEYCLOAK_CLIENT_NAME:ar_digi_companion_api}
+            client-secret: ${KEYCLOAK_CLIENT_SECRET_ID:08cbebb1-41b0-4eee-b08d-1d38b625af49}
+
+api:
+  opc:
+    baseUrl: http://localhost:8000
+
+application:
+  audience:
+    - account
+    - ${KEYCLOAK_CLIENT_NAME:ar_digi_companion_api}
+    - api://default
+  cors:
+    allowed-origins: '*'
+    allowed-methods: '*'
+    allowed-headers: '*'
+    exposed-headers: 'Authorization,Link,X-Total-Count'
+    allow-credentials: true
+    max-age: 1800
+  clientApp:
+    name: DVPI
+  user-limit: ${APPLICATION_LIMIT_USERS:30}
+#  air-byte-url: ${APP_BACKEND_AIRBYTE_URL:http://localhost:8000/api/v1}
+keycloak:
+  realm: ${KEYCLOAK_REALM_NAME:ar_digi_companion}
+  cors: true
+  auth-server-url: ${KEYCLOAK_AUTH_URL:http://localhost:8080/auth}
+  ssl-required: ${KEYCLOAK_SSL_REQUIRED:none}
+  resource: ${KEYCLOAK_CLIENT_NAME:dvpi_api}
+  principal-attribute: ${KEYCLOAK_PRIMARY_ROLE:dvpi_admin}
+  credentials:
+    secret: ${KEYCLOAK_CLIENT_SECRET_ID:08cbebb1-41b0-4eee-b08d-1d38b625af49}
+  use-resource-role-mappings: true
+  enabled: true
